@@ -24,7 +24,6 @@ env:
     #               match the new release
     # LATEST_RELEASE_REPO is the dockerhub repo that FLOATING_REPO should
     #                     match
-    - DOCKER_VERSION=1.12.0-0~trusty
     - FLOATING_REPO=crops/toaster
     - LATEST_RELEASE_REPO=crops/toaster-krogoth
     - GITREPO=git://git.yoctoproject.org/poky
