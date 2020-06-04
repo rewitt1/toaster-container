@@ -14,15 +14,7 @@ env:
     # BRANCH is the actual branch/tag in the github repo
     # DOCKERHUB_TAGS are the tags to use for the REPO when pushing to dockerhub
     # POKYBRANCH is the branch of poky selected by toaster to use during tests.
-    - REPO=crops/toaster-dunfell BRANCH=dunfell DOCKERHUB_TAG="latest" POKYBRANCH=dunfell
     - REPO=crops/toaster-zeus BRANCH=zeus DOCKERHUB_TAG="latest" POKYBRANCH=zeus
-    - REPO=crops/toaster-warrior BRANCH=warrior DOCKERHUB_TAG="latest" POKYBRANCH=warrior
-    - REPO=crops/toaster-thud BRANCH=thud DOCKERHUB_TAG="latest" POKYBRANCH=thud
-    - REPO=crops/toaster-sumo BRANCH=sumo DOCKERHUB_TAG="latest" POKYBRANCH=sumo
-    - REPO=crops/toaster-rocko BRANCH=rocko DOCKERHUB_TAG="latest" POKYBRANCH=rocko
-    - REPO=crops/toaster-pyro BRANCH=pyro DOCKERHUB_TAG="latest" POKYBRANCH=pyro
-    - REPO=crops/toaster-morty BRANCH=morty DOCKERHUB_TAG="latest" POKYBRANCH=morty
-    - REPO=crops/toaster-master BRANCH=master DOCKERHUB_TAG="latest" POKYBRANCH=master
 
   global:
     # FLOATING_REPO is the dockerhub repo the can change what it's tracking
