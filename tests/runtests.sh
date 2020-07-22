@@ -25,7 +25,7 @@
 #
 # IMAGE
 #    This is the image to be used for toaster. It should be in the same format
-#    as passed to "docker run". By default, it is set to
+#    as passed to "spodman run". By default, it is set to
 #    "crops/toaster:latest".
 #
 # POKYBRANCH
@@ -58,16 +58,16 @@
 set -e
 
 function stop_containers () {
-    docker kill $toastername $seleniumname >& /dev/null
+    spodman kill $toastername $seleniumname >& /dev/null
 
-    # Since it appears that sometimes docker will not delete the container
-    # even though --rm=true is on the "docker run" command line, also manually
+    # Since it appears that sometimes spodman will not delete the container
+    # even though --rm=true is on the "spodman run" command line, also manually
     # delete the container.
-    if docker ps -a | grep -q $toastername; then
-        docker rm $toastername >& /dev/null
+    if spodman ps -a | grep -q $toastername; then
+        spodman rm $toastername >& /dev/null
     fi
-    if docker ps -a | grep -q $seleniumname; then
-        docker rm $seleniumname >& /dev/null
+    if spodman ps -a | grep -q $seleniumname; then
+        spodman rm $seleniumname >& /dev/null
     fi
 }
 
@@ -119,7 +119,7 @@ function start_toaster() {
              { sed '/$sentinel/ q' && kill \$\$;}" &
 
     printf "\n\nStarting toaster...\n"
-    docker run -t --rm=true --name=$toastername \
+    spodman run -t --rm=true --name=$toastername \
                -v $tempdir/toasterbuild:/workdir \
                ${poky_bind} \
                ${image} ${local_arg} >> $toasterlog 2>&1 &
@@ -128,7 +128,7 @@ function start_toaster() {
     while ! grep "$sentinel" $toasterlog >& /dev/null; do
         # Check if the job exited
 	comm="$(ps -p $toasterpid -o comm=)"
-        if [ ${comm} != "docker" -a ${comm} != "docker-current" ] ; then
+        if [ ${comm} != "spodman" -a ${comm} != "spodman-current" ] ; then
             echo "ERROR: The toaster job couldn't be found."
             fail
         fi
@@ -143,7 +143,6 @@ function start_selenium() {
     # found.
     bash -c "tail -n +0 -f $seleniumlog | \
              { sed '/$sentinel/ q' && kill \$\$;}" &
-
     printf "\n\nStarting selenium...\n"
     if [ "$VNCPORT" != "" ]; then
         # default to loclahost visibility only, unless specified.
@@ -151,14 +150,12 @@ function start_selenium() {
         if   echo $VNCPORT | grep -q ":"; then
             HOST_VNCBINDING="$VNCPORT"
         fi
-        docker run --rm=true -p $HOST_VNCBINDING:5900 \
+        spodman run --rm=true -p $HOST_VNCBINDING:5900 \
                    -p 127.0.0.1:4444:4444 --name=$seleniumname \
-                   --link=$toastername \
                    selenium/standalone-firefox-debug:$selenium_version \
                    >> $seleniumlog 2>&1 &
     else
-        docker run --rm=true -p 127.0.0.1:4444:4444 --name=$seleniumname \
-                   --link=$toastername \
+        spodman run --rm=true -p 127.0.0.1:4444:4444 --name=$seleniumname \
                    selenium/standalone-firefox:$selenium_version \
                    >> $seleniumlog 2>&1 &
     fi
@@ -167,7 +164,7 @@ function start_selenium() {
     while ! grep "$sentinel" $seleniumlog >& /dev/null; do
         # Check if the job exited
 	comm=$(ps -p $seleniumpid -o comm=)
-        if [ ${comm} != "docker" -a ${comm} != "docker-current" ] ; then
+        if [ ${comm} != "spodman" -a ${comm} != "spodman-current" ] ; then
             echo "ERROR: The selenium job couldn't be found."
             fail
         fi
@@ -222,6 +219,7 @@ pip install selenium==$selenium_version
 
 # Run the containers
 start_toaster
+toasterurl=$(spodman inspect $toastername | grep IPAddress | awk '{print $2}' | tr -d \",)
 start_selenium
 
 
@@ -236,7 +234,7 @@ fi
 SCRIPT_DIR=$(dirname "$THIS_SCRIPT")
 SCRIPT_DIR=$(readlink -f "$SCRIPT_DIR")
 
-${SCRIPT_DIR}/smoketests.py --toaster_url="http://$toastername:8000/" \
+${SCRIPT_DIR}/smoketests.py --toaster_url="http://$toasterurl:8000/" \
                 $timeout_arg \
                 $pokybranch_arg
 echo "smoketests PASSED!"
