@@ -140,11 +140,8 @@ try:
 
 
     # Wait for either a success or a fail
-    # note: bootstrap2 (krogoth) calls it alert-error
-    #       bootstrap3 (2.2 forwards) calls it alert-danger
     selector = ("div.alert.build-result.alert-success,"
-                "div.alert.build-result.alert-danger"
-                "div.alert.build-result.alert-error")
+                "div.alert.build-result.alert-danger")
 
     hb = HeartBeat()
     hb.start()
